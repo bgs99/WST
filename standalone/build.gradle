@@ -1,0 +1,14 @@
+apply plugin: 'application'
+
+description = 'WST standalone server'
+
+dependencies {
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.3'
+    implementation group: 'javax.xml.ws', name: 'jaxws-api', version: '2.3.1'
+    implementation group: 'javax.jws', name: 'javax.jws-api', version: '1.1'
+    implementation group: 'com.sun.xml.ws', name:'rt', version: '2.3.5'
+}
+
+application {
+    mainClass = "bgs.server.Server"
+}

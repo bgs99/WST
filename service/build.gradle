@@ -1,0 +1,9 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'war'
+
+description = 'WST service'
+
+dependencies {
+    compileOnly group: 'jakarta.platform', name: 'jakarta.jakartaee-api', version: '9.1.0'
+}

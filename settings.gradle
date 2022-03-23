@@ -1,0 +1,6 @@
+rootProject.name = 'WST'
+
+include ':client'
+include ':service'
+include ':standalone'
+
