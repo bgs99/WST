@@ -37,8 +37,6 @@ task wsimport {
     }
 }
 
-compileJava.dependsOn(wsimport)
-
 application {
     mainClass = "bgs.client.Client"
 }

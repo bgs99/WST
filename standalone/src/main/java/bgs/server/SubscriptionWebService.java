@@ -1,5 +1,7 @@
 package bgs.server;
 
+import bgs.shared.*;
+
 import java.sql.Connection;
 import java.util.List;
 import javax.jws.WebMethod;

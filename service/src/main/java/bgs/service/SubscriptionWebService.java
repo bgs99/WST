@@ -1,5 +1,7 @@
 package bgs.service;
 
+import bgs.shared.*;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -14,6 +16,8 @@ import javax.sql.DataSource;
 
 @WebService(serviceName = "SubscriptionService")
 public class SubscriptionWebService {
+    private final static Logger LOGGER = Logger.getLogger(SubscriptionWebService.class.getName());
+    
     @WebMethod
     public List<Subscription> getAllSubscriptions() {
         SQLDAO dao = new SQLDAO(getConnection());
@@ -92,15 +96,14 @@ public class SubscriptionWebService {
             InitialContext ctx = new InitialContext();
             dataSource = (DataSource) ctx.lookup("jdbc/bgs-ws");
         } catch (NamingException ex) {
-            Logger.getLogger(SubscriptionWebService.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
             return null;
         }
         Connection result = null;
         try {
             result = dataSource.getConnection();
         } catch (SQLException ex) {
-            Logger.getLogger(SubscriptionWebService.class.getName()).log(Level.SEVERE, null,
-                    ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
         return result;
     }

@@ -7,6 +7,7 @@ dependencies {
     implementation group: 'javax.xml.ws', name: 'jaxws-api', version: '2.3.1'
     implementation group: 'javax.jws', name: 'javax.jws-api', version: '1.1'
     implementation group: 'com.sun.xml.ws', name:'rt', version: '2.3.5'
+    implementation project(':shared')
 }
 
 application {

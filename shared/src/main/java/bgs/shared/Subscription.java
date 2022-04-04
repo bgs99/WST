@@ -1,4 +1,4 @@
-package bgs.service;
+package bgs.shared;
 
 public class Subscription {
     private int id;

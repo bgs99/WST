@@ -6,4 +6,5 @@ description = 'WST service'
 
 dependencies {
     compileOnly group: 'jakarta.platform', name: 'jakarta.jakartaee-api', version: '9.1.0'
+    implementation project(':shared')
 }

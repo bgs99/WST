@@ -1,4 +1,4 @@
-package bgs.service;
+package bgs.shared;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -10,12 +10,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SQLDAO {
-    Connection connection;
+    private final static Logger LOGGER = Logger.getLogger(SQLDAO.class.getName());
+    private final Connection connection;
 
     public class SubscriptionFilterBuilder {
-        private String query = "select * from subscriptions";
+        private final StringBuilder query = new StringBuilder("select * from subscriptions");
         private boolean hasFilter = false;
-        private Statement stmt;
+        private final Statement stmt;
 
         private SubscriptionFilterBuilder() throws SQLException {
             this.stmt = connection.createStatement();
@@ -23,48 +24,48 @@ public class SQLDAO {
 
         private void addFilter(String filter) {
             if (hasFilter) {
-                query += " and " + filter;
+                query.append(" and ").append(filter);
             } else {
                 hasFilter = true;
-                query += " where " + filter;
+                query.append(" where ").append(filter);
             }
         }
 
-        SubscriptionFilterBuilder byName(String name) {
+        public SubscriptionFilterBuilder byName(String name) {
             try {
                 addFilter("subscriptions.name = " + stmt.enquoteLiteral(name));
             } catch (SQLException e) {
-                e.printStackTrace();
+                
             }
             return this;
         }
 
-        SubscriptionFilterBuilder byId(int id) {
+        public SubscriptionFilterBuilder byId(int id) {
             addFilter("subscriptions.id = " + id);
             return this;
         }
 
-        SubscriptionFilterBuilder byRateGe(double rate) {
+        public SubscriptionFilterBuilder byRateGe(double rate) {
             addFilter("subscriptions.rate >= " + rate);
             return this;
         }
 
-        SubscriptionFilterBuilder byRateLe(double rate) {
+        public SubscriptionFilterBuilder byRateLe(double rate) {
             addFilter("subscriptions.rate <= " + rate);
             return this;
         }
 
-        SubscriptionFilterBuilder byThroughputGe(double throughput) {
+        public SubscriptionFilterBuilder byThroughputGe(double throughput) {
             addFilter("subscriptions.throughput >= " + throughput);
             return this;
         }
 
-        SubscriptionFilterBuilder byThroughputLe(double throughput) {
+        public SubscriptionFilterBuilder byThroughputLe(double throughput) {
             addFilter("subscriptions.throughput <= " + throughput);
             return this;
         }
 
-        SubscriptionFilterBuilder byTv(boolean has_tv) {
+        public SubscriptionFilterBuilder byTv(boolean has_tv) {
             addFilter("subscriptions.tv = " + (has_tv ? "true" : "false"));
             return this;
         }
@@ -73,7 +74,7 @@ public class SQLDAO {
             List<Subscription> subscriptions = new ArrayList<>();
             ResultSet rs;
             try {
-                rs = stmt.executeQuery(query);
+                rs = stmt.executeQuery(query.toString());
 
                 while (rs.next()) {
                     int id = rs.getInt("id");
@@ -85,8 +86,7 @@ public class SQLDAO {
                     subscriptions.add(person);
                 }
             } catch (SQLException ex) {
-                Logger.getLogger(SQLDAO.class.getName()).log(Level.SEVERE,
-                    null, ex);
+                LOGGER.log(Level.SEVERE, null, ex);
             }
             return subscriptions;
         }
@@ -100,8 +100,7 @@ public class SQLDAO {
         try {
             return new SubscriptionFilterBuilder();
         } catch (SQLException ex) {
-            Logger.getLogger(SQLDAO.class.getName()).log(Level.SEVERE,
-                    null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
             return null;
         }
     }
