@@ -1,6 +1,7 @@
 package bgs.shared;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -10,10 +11,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SQLDAO {
+
     private final static Logger LOGGER = Logger.getLogger(SQLDAO.class.getName());
     private final Connection connection;
 
     public class SubscriptionFilterBuilder {
+
         private final StringBuilder query = new StringBuilder("select * from subscriptions");
         private boolean hasFilter = false;
         private final Statement stmt;
@@ -35,7 +38,7 @@ public class SQLDAO {
             try {
                 addFilter("subscriptions.name = " + stmt.enquoteLiteral(name));
             } catch (SQLException e) {
-                
+
             }
             return this;
         }
@@ -92,8 +95,18 @@ public class SQLDAO {
         }
     }
 
-    public SQLDAO(Connection connection) {
+    private final PreparedStatement createStatement;
+    private final PreparedStatement editStatement;
+    private final PreparedStatement removeStatement;
+
+    public SQLDAO(Connection connection) throws SQLException {
         this.connection = connection;
+        this.createStatement = this.connection.prepareStatement(
+                "INSERT INTO subscriptions (name, rate, throughput, tv) VALUES (?, ?, ?, ?) RETURNING id");
+        this.editStatement = this.connection.prepareStatement(
+                "UPDATE subscriptions SET name = ?, rate = ?, throughput = ?, tv = ? WHERE id = ?");
+        this.removeStatement = this.connection.prepareStatement(
+                "DELETE FROM subscriptions WHERE id = ?");
     }
 
     public SubscriptionFilterBuilder getSubscriptionsFilterBuilder() {
@@ -102,6 +115,52 @@ public class SQLDAO {
         } catch (SQLException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
             return null;
+        }
+    }
+
+    public int createSubscription(
+            String name,
+            double rate,
+            double throughput,
+            boolean hasTv) {
+        try {
+            createStatement.setString(1, name);
+            createStatement.setDouble(2, rate);
+            createStatement.setDouble(3, throughput);
+            createStatement.setBoolean(4, hasTv);
+            var results = createStatement.executeQuery();
+            while (results.next()) {
+                return results.getInt(1);
+            }
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+        }
+        return -1;
+    }
+
+    public boolean editSubscription(int id, String name, double rate, double throughput, boolean hasTv) {
+        try {
+            editStatement.setString(1, name);
+            editStatement.setDouble(2, rate);
+            editStatement.setDouble(3, throughput);
+            editStatement.setBoolean(4, hasTv);
+            editStatement.setInt(5, id);
+
+            return editStatement.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+
+    public boolean removeSubscription(int id) {
+        try {
+            removeStatement.setInt(1, id);
+
+            return removeStatement.executeUpdate() == 1;
+        } catch (SQLException ex) {
+            LOGGER.log(Level.SEVERE, null, ex);
+            return false;
         }
     }
 }
