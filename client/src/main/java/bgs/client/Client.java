@@ -8,13 +8,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import javax.xml.ws.soap.MTOMFeature;
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 
 public class Client {
 
     private final SubscriptionWebService port;
 
     Client(URL url) {
-        this.port = new SubscriptionService(url).getSubscriptionWebServicePort();
+        this.port = new SubscriptionService(url).getSubscriptionWebServicePort(new MTOMFeature());
     }
 
     synchronized int createSubscription(List<String> args) throws IllegalArgumentException {
@@ -109,6 +112,16 @@ public class Client {
             }
         }
     }
+    
+    synchronized int countBytes(List<String> args) throws IllegalArgumentException {
+        if (args.size() < 1) {
+            throw new IllegalArgumentException("Expected id");
+        }
+        
+        var ds = new FileDataSource(args.get(0));
+        
+        return this.port.countBytes(new DataHandler(ds));
+    }
 
     public static void main(String[] args) throws MalformedURLException {
         final var url = new URL("http://bgs99claptop:8080/wst/SubscriptionService?wsdl");
@@ -134,6 +147,11 @@ public class Client {
                 }
                 System.out.println("Total subscriptions: " + subscriptions.size());
                 break;
+            }
+            case "bytes" -> {
+                final var bytes = client.countBytes(argList);
+                
+                System.out.println("Total bytes: " + bytes);
             }
             case "create" -> {
                 final var id = client.createSubscription(argList);
