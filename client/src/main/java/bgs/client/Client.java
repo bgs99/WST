@@ -1,6 +1,8 @@
 package bgs.client;
 
+import bgs.client.generated.NegativeParameterException;
 import bgs.client.generated.Subscription;
+import bgs.client.generated.SubscriptionNotFoundException;
 import bgs.client.generated.SubscriptionService;
 import bgs.client.generated.SubscriptionWebService;
 
@@ -17,7 +19,8 @@ public class Client {
         this.port = new SubscriptionService(url).getSubscriptionWebServicePort();
     }
 
-    synchronized int createSubscription(List<String> args) throws IllegalArgumentException {
+    synchronized int createSubscription(List<String> args)
+            throws IllegalArgumentException, NegativeParameterException {
         if (args.size() < 4) {
             throw new IllegalArgumentException("Expected 4 values for name, rate, throughput, and tv");
         }
@@ -28,11 +31,12 @@ public class Client {
                 Boolean.parseBoolean(args.get(3)));
     }
 
-    synchronized boolean editSubscription(List<String> args) throws IllegalArgumentException {
+    synchronized void editSubscription(List<String> args)
+            throws IllegalArgumentException, NegativeParameterException, SubscriptionNotFoundException {
         if (args.size() < 5) {
             throw new IllegalArgumentException("Expected 5 values for id, name, rate, throughput, and tv");
         }
-        return this.port.editSubscription(
+        this.port.editSubscription(
                 Integer.parseInt(args.get(0)),
                 args.get(1),
                 Double.parseDouble(args.get(2)),
@@ -40,11 +44,12 @@ public class Client {
                 Boolean.parseBoolean(args.get(4)));
     }
 
-    synchronized boolean removeSubscription(List<String> args) throws IllegalArgumentException {
+    synchronized void removeSubscription(List<String> args)
+            throws IllegalArgumentException, SubscriptionNotFoundException {
         if (args.size() < 1) {
             throw new IllegalArgumentException("Expected id");
         }
-        return this.port.removeSubscription(
+        this.port.removeSubscription(
                 Integer.parseInt(args.get(0)));
     }
 
@@ -136,26 +141,30 @@ public class Client {
                 break;
             }
             case "create" -> {
-                final var id = client.createSubscription(argList);
+                try {
+                    final var id = client.createSubscription(argList);
 
-                System.out.println("Created subscription with id " + id);
+                    System.out.println("Created subscription with id " + id);
+                } catch (NegativeParameterException | IllegalArgumentException e) {
+                    System.out.println("Failed to create subscription: " + e);
+                }
                 break;
             }
             case "edit" -> {
-                final var success = client.editSubscription(argList);
-                if (success) {
+                try {
+                    client.editSubscription(argList);
                     System.out.println("Successfully edited subscription");
-                } else {
-                    System.out.println("Failed to edit subscription");
+                } catch (NegativeParameterException | SubscriptionNotFoundException | IllegalArgumentException e) {
+                    System.out.println("Failed to edit subscription: " + e);
                 }
                 break;
             }
             case "remove" -> {
-                final var success = client.removeSubscription(argList);
-                if (success) {
+                try {
+                    client.removeSubscription(argList);
                     System.out.println("Successfully removed subscription");
-                } else {
-                    System.out.println("Failed to remove subscription");
+                } catch (SubscriptionNotFoundException | IllegalArgumentException e) {
+                    System.out.println("Failed to remove subscription: " + e);
                 }
                 break;
             }

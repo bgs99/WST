@@ -16,7 +16,7 @@ public class SubscriptionWebService {
     public SubscriptionWebService() throws SQLException {
         this.dao = new SQLDAO(connection);
     }
-    
+
     @WebMethod
     public List<Subscription> getAllSubscriptions() {
         List<Subscription> persons = this.dao.getSubscriptionsFilterBuilder()
@@ -99,17 +99,45 @@ public class SubscriptionWebService {
     }
     
     @WebMethod
-    public int createSubscription(String name, double rate, double throughput, boolean hasTv) {
+    public int createSubscription(String name, double rate, double throughput, boolean hasTv) throws NegativeParameterException{
+        if (rate < 0) {
+            throw new NegativeParameterException(
+                    String.format("Failed to create subscription with rate %f: rate should be non-negative", rate),
+                    SubscriptionServiceFault.defaultInstance());
+        }
+        if (throughput < 0) {
+            throw new NegativeParameterException(
+                    String.format("Failed to create subscription with throughput %f: throughput should be non-negative", throughput),
+                    SubscriptionServiceFault.defaultInstance());
+        }
         return this.dao.createSubscription(name, rate, throughput, hasTv);
     }
     
     @WebMethod
-    public boolean editSubscription(int id, String name, double rate, double throughput, boolean hasTv) {
-        return this.dao.editSubscription(id, name, rate, throughput, hasTv);
+    public void editSubscription(int id, String name, double rate, double throughput, boolean hasTv) throws NegativeParameterException, SubscriptionNotFoundException {
+        if (rate < 0) {
+            throw new NegativeParameterException(
+                    String.format("Failed to edit subscription %d with new rate %f: rate should be non-negative", id, rate),
+                    SubscriptionServiceFault.defaultInstance());
+        }
+        if (throughput < 0) {
+            throw new NegativeParameterException(
+                    String.format("Failed to edit subscription %d with new throughput %f: throughput should be non-negative", id, throughput),
+                    SubscriptionServiceFault.defaultInstance());
+        }
+        if (!this.dao.editSubscription(id, name, rate, throughput, hasTv)) {
+            throw new SubscriptionNotFoundException(
+                    String.format("Failed to edit subscription with id %d", id),
+                    SubscriptionServiceFault.defaultInstance());
+        }
     }
 
     @WebMethod
-    public boolean removeSubscription(int id) {
-        return this.dao.removeSubscription(id);
+    public void removeSubscription(int id) throws SubscriptionNotFoundException {
+        if (!this.dao.removeSubscription(id)) {
+            throw new SubscriptionNotFoundException(
+                    String.format("Failed to remove subscription with id %d", id),
+                    SubscriptionServiceFault.defaultInstance());
+        }
     }
 }
