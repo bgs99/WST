@@ -8,85 +8,95 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jakarta.jws.WebMethod;
-import jakarta.jws.WebService;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-@WebService(serviceName = "SubscriptionService")
-public class SubscriptionWebService {
-    private final static Logger LOGGER = Logger.getLogger(SubscriptionWebService.class.getName());
+@RequestScoped
+@Path("/subscriptions")
+@Produces({MediaType.APPLICATION_JSON})
+public class SubscriptionResource {
+    private final static Logger LOGGER = Logger.getLogger(SubscriptionResource.class.getName());
     
-    @WebMethod
+    @GET
     public List<Subscription> getAllSubscriptions() {
         SQLDAO dao = new SQLDAO(getConnection());
         List<Subscription> persons = dao.getSubscriptionsFilterBuilder().getResults();
         return persons;
     }
 
-    @WebMethod
-    public List<Subscription> getSubscriptionsByName(String name) {
+    @Path("/by_name/{name}")
+    @GET
+    public List<Subscription> getSubscriptionsByName(@PathParam("name") String name) {
         SQLDAO dao = new SQLDAO(getConnection());
         List<Subscription> persons = dao.getSubscriptionsFilterBuilder().byName(name).getResults();
         return persons;
     }
 
-    @WebMethod
-    public List<Subscription> getSubscriptionsById(int id) {
+    @Path("/by_id/{id}")
+    @GET
+    public List<Subscription> getSubscriptionsById(@PathParam("id") int id) {
         SQLDAO dao = new SQLDAO(getConnection());
         List<Subscription> persons = dao.getSubscriptionsFilterBuilder().byId(id).getResults();
         return persons;
     }
 
-    @WebMethod
-    public List<Subscription> getSubscriptionsByThroughputLe(double throughput) {
+    @Path("/by_throughput/le/{throughput}")
+    @GET
+    public List<Subscription> getSubscriptionsByThroughputLe(@PathParam("throughput") double throughput) {
         SQLDAO dao = new SQLDAO(getConnection());
         List<Subscription> persons = dao.getSubscriptionsFilterBuilder().byThroughputLe(throughput).getResults();
         return persons;
     }
 
-    @WebMethod
-    public List<Subscription> getSubscriptionsByThroughputGe(double throughput) {
+    @Path("/by_throughput/ge/{throughput}")
+    @GET
+    public List<Subscription> getSubscriptionsByThroughputGe(@PathParam("throughput") double throughput) {
         SQLDAO dao = new SQLDAO(getConnection());
         List<Subscription> persons = dao.getSubscriptionsFilterBuilder().byThroughputGe(throughput).getResults();
         return persons;
     }
 
-    @WebMethod
-    public List<Subscription> getSubscriptionsByRateLe(double rate) {
+    @Path("/by_rate/le/{rate}")
+    @GET
+    public List<Subscription> getSubscriptionsByRateLe(@PathParam("rate") double rate) {
         SQLDAO dao = new SQLDAO(getConnection());
         List<Subscription> persons = dao.getSubscriptionsFilterBuilder().byRateLe(rate).getResults();
         return persons;
     }
 
-    @WebMethod
-    public List<Subscription> getSubscriptionsByRateGe(double rate) {
+    @Path("/by_rate/ge/{rate}")
+    @GET
+    public List<Subscription> getSubscriptionsByRateGe(@PathParam("rate") double rate) {
         SQLDAO dao = new SQLDAO(getConnection());
         List<Subscription> persons = dao.getSubscriptionsFilterBuilder().byRateGe(rate).getResults();
         return persons;
     }
 
-    @WebMethod
-    public List<Subscription> getSubscriptionsByTv(boolean hasTv) {
+    @Path("/by_tv/{has_tv}")
+    @GET
+    public List<Subscription> getSubscriptionsByTv(@PathParam("has_tv") boolean hasTv) {
         SQLDAO dao = new SQLDAO(getConnection());
         List<Subscription> persons = dao.getSubscriptionsFilterBuilder().byTv(hasTv).getResults();
         return persons;
     }
 
-    @WebMethod
-    public List<Subscription> getSubscriptionsBetterThan(double rate, double throughput) {
+    @Path("/better_than")
+    @GET
+    public List<Subscription> getSubscriptionsBetterThan(@QueryParam("rate") double rate, @QueryParam("throughput") double throughput) {
         SQLDAO dao = new SQLDAO(getConnection());
-        List<Subscription> persons = dao.getSubscriptionsFilterBuilder().byRateLe(rate).byThroughputGe(throughput)
-                .getResults();
+        List<Subscription> persons = dao.getSubscriptionsFilterBuilder().byRateLe(rate).byThroughputGe(throughput).getResults();
         return persons;
     }
 
-    @WebMethod
-    public List<Subscription> getSubscriptionsWorseThan(double rate, double throughput) {
+    @Path("/worse_than")
+    @GET
+    public List<Subscription> getSubscriptionsWorseThan(@QueryParam("rate") double rate, @QueryParam("throughput") double throughput) {
         SQLDAO dao = new SQLDAO(getConnection());
-        List<Subscription> persons = dao.getSubscriptionsFilterBuilder().byRateGe(rate).byThroughputLe(throughput)
-                .getResults();
+        List<Subscription> persons = dao.getSubscriptionsFilterBuilder().byRateGe(rate).byThroughputLe(throughput).getResults();
         return persons;
     }
 
