@@ -4,12 +4,19 @@ description = 'WST standalone server'
 
 dependencies {
     implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.3'
-    implementation group: 'javax.xml.ws', name: 'jaxws-api', version: '2.3.1'
-    implementation group: 'javax.jws', name: 'javax.jws-api', version: '1.1'
-    implementation group: 'com.sun.xml.ws', name:'rt', version: '2.3.5'
+    implementation group: 'org.glassfish.jersey.core', name: 'jersey-server', version: '3.0.4'
+    implementation group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '3.0.4'
+    implementation group: 'jakarta.ws.rs', name: 'jakarta.ws.rs-api', version: '3.1.0'
+    implementation group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '3.0.4'
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-moxy', version: '3.0.4'
+
     implementation project(':shared')
 }
 
 application {
     mainClass = "bgs.server.Server"
+}
+
+run {
+    standardInput = System.in
 }
