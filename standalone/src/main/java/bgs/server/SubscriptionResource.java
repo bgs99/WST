@@ -101,7 +101,7 @@ public class SubscriptionResource {
             throw new NegativeParameterException(
                     String.format("Failed to create subscription with throughput %f: throughput should be non-negative", subscription.getThroughput()));
         }
-        return this.dao.createSubscription(subscription.getName(), subscription.getRate(), subscription.getThroughput(), subscription.isHasTv());
+        return this.dao.createSubscription(subscription.getName(), subscription.getRate(), subscription.getThroughput(), subscription.getHasTv());
     }
 
     @Path("/{id}")
@@ -116,7 +116,7 @@ public class SubscriptionResource {
             throw new NegativeParameterException(
                     String.format("Failed to edit subscription %d with throughput %f: throughput should be non-negative", id, subscription.getThroughput()));
         }
-        if (!this.dao.editSubscription(id, subscription.getName(), subscription.getRate(), subscription.getThroughput(), subscription.isHasTv())) {
+        if (!this.dao.editSubscription(id, subscription.getName(), subscription.getRate(), subscription.getThroughput(), subscription.getHasTv())) {
             throw new SubscriptionNotFoundException(
                     String.format("Failed to edit subscription with id %d", id));
         }

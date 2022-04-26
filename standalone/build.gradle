@@ -1,4 +1,7 @@
-apply plugin: 'application'
+plugins {
+    id 'application'
+    id "io.freefair.lombok" version "6.4.3"
+}
 
 description = 'WST standalone server'
 
