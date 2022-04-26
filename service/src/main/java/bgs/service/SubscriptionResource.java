@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.*;
@@ -15,12 +14,14 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import lombok.extern.java.Log;
+
 @RequestScoped
 @Path("/subscriptions")
 @Produces({MediaType.APPLICATION_JSON})
+@Log
 public class SubscriptionResource {
-    private final static Logger LOGGER = Logger.getLogger(SubscriptionResource.class.getName());
-    
+
     private final SQLDAO dao;
     
     public SubscriptionResource() throws SQLException {
@@ -103,14 +104,14 @@ public class SubscriptionResource {
             InitialContext ctx = new InitialContext();
             dataSource = (DataSource) ctx.lookup("jdbc/bgs-ws");
         } catch (NamingException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            log.log(Level.SEVERE, null, ex);
             return null;
         }
         Connection result = null;
         try {
             result = dataSource.getConnection();
         } catch (SQLException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            log.log(Level.SEVERE, null, ex);
         }
         return result;
     }

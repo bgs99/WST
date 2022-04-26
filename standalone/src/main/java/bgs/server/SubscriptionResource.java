@@ -93,14 +93,14 @@ public class SubscriptionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public int createSubscription(Subscription subscription) {
-        return this.dao.createSubscription(subscription.getName(), subscription.getRate(), subscription.getThroughput(), subscription.isHasTv());
+        return this.dao.createSubscription(subscription.getName(), subscription.getRate(), subscription.getThroughput(), subscription.getHasTv());
     }
 
     @Path("/{id}")
     @PUT
     @Produces(MediaType.TEXT_PLAIN)
     public boolean editSubscription(Subscription subscription, @PathParam("id") int id) {
-        return this.dao.editSubscription(id, subscription.getName(), subscription.getRate(), subscription.getThroughput(), subscription.isHasTv());
+        return this.dao.editSubscription(id, subscription.getName(), subscription.getRate(), subscription.getThroughput(), subscription.getHasTv());
     }
 
     @Path("/{id}")
