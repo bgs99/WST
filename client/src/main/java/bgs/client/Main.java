@@ -126,7 +126,7 @@ public class Main {
                     + ", name = " + subscription.getName()
                     + ", rate = " + subscription.getRate() + " roubles"
                     + ", throughput = " + subscription.getThroughput() + " Mbps"
-                    + ", has tv = " + (subscription.isHasTv()? "Yes" : "No")
+                    + ", has tv = " + (subscription.getHasTv()? "Yes" : "No")
                     + "}");
         }
         System.out.println("Total subscriptions: " + subscriptions.size());
