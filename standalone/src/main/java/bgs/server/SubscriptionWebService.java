@@ -5,22 +5,37 @@ import bgs.shared.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 import javax.jws.WebMethod;
 import javax.jws.WebService;
 
 @WebService(serviceName = "SubscriptionService")
 public class SubscriptionWebService {
+
     private final static Connection connection = ConnectionUtil.getConnection();
     private final SQLDAO dao;
-    
+    private final static int THROTTLE_THRESHOLD = 20;
+    private final Semaphore throttler = new Semaphore(THROTTLE_THRESHOLD);
+
     public SubscriptionWebService() throws SQLException {
         this.dao = new SQLDAO(connection);
     }
 
     @WebMethod
-    public List<Subscription> getAllSubscriptions() {
-        List<Subscription> persons = this.dao.getSubscriptionsFilterBuilder()
-                .getResults();
+    public List<Subscription> getAllSubscriptions() throws ThrottlingException {
+        if (!this.throttler.tryAcquire()) {
+            throw new ThrottlingException(
+                    "Too many concurrent requests",
+                    SubscriptionServiceFault.defaultInstance());
+        }
+        List<Subscription> persons = null;
+        try {
+            persons = this.dao.getSubscriptionsFilterBuilder()
+                    .getResults();
+        } finally {
+            // No RAII in Java, have to do it like that :(
+            this.throttler.release();
+        }
         return persons;
     }
 
@@ -97,9 +112,9 @@ public class SubscriptionWebService {
                 .getResults();
         return persons;
     }
-    
+
     @WebMethod
-    public int createSubscription(String name, double rate, double throughput, boolean hasTv) throws NegativeParameterException{
+    public int createSubscription(String name, double rate, double throughput, boolean hasTv) throws NegativeParameterException {
         if (rate < 0) {
             throw new NegativeParameterException(
                     String.format("Failed to create subscription with rate %f: rate should be non-negative", rate),
@@ -112,7 +127,7 @@ public class SubscriptionWebService {
         }
         return this.dao.createSubscription(name, rate, throughput, hasTv);
     }
-    
+
     @WebMethod
     public void editSubscription(int id, String name, double rate, double throughput, boolean hasTv) throws NegativeParameterException, SubscriptionNotFoundException {
         if (rate < 0) {

@@ -5,6 +5,7 @@ import bgs.client.generated.Subscription;
 import bgs.client.generated.SubscriptionNotFoundException;
 import bgs.client.generated.SubscriptionService;
 import bgs.client.generated.SubscriptionWebService;
+import bgs.client.generated.ThrottlingException;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -53,7 +54,7 @@ public class Client {
                 Integer.parseInt(args.get(0)));
     }
 
-    synchronized List<Subscription> getSubscriptions(List<String> args) throws IllegalArgumentException {
+    synchronized List<Subscription> getSubscriptions(List<String> args) throws IllegalArgumentException, ThrottlingException {
         if (args.isEmpty()) {
             return this.port.getAllSubscriptions();
         } else {
@@ -127,17 +128,21 @@ public class Client {
 
         switch (args[0]) {
             case "get" -> {
-                final var subscriptions = client.getSubscriptions(argList);
+                try {
+                    final var subscriptions = client.getSubscriptions(argList);
 
-                for (final Subscription subscription : subscriptions) {
-                    System.out.println("Subscription{id = " + subscription.getId()
-                            + ", name = " + subscription.getName()
-                            + ", rate = " + subscription.getRate() + " roubles"
-                            + ", throughput = " + subscription.getThroughput() + " Mbps"
-                            + ", has tv = " + (subscription.isHasTv() ? "Yes" : "No")
-                            + "}");
+                    for (final Subscription subscription : subscriptions) {
+                        System.out.println("Subscription{id = " + subscription.getId()
+                                + ", name = " + subscription.getName()
+                                + ", rate = " + subscription.getRate() + " roubles"
+                                + ", throughput = " + subscription.getThroughput() + " Mbps"
+                                + ", has tv = " + (subscription.isHasTv() ? "Yes" : "No")
+                                + "}");
+                    }
+                    System.out.println("Total subscriptions: " + subscriptions.size());
+                } catch (ThrottlingException | IllegalArgumentException e){
+                    System.out.println("Failed to get subscriptions: " + e);
                 }
-                System.out.println("Total subscriptions: " + subscriptions.size());
                 break;
             }
             case "create" -> {
@@ -145,7 +150,7 @@ public class Client {
                     final var id = client.createSubscription(argList);
 
                     System.out.println("Created subscription with id " + id);
-                } catch (NegativeParameterException | IllegalArgumentException e) {
+                } catch (NegativeParameterException |IllegalArgumentException e) {
                     System.out.println("Failed to create subscription: " + e);
                 }
                 break;
