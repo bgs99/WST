@@ -32,7 +32,7 @@ public class Main {
         final var response = this.client.target(uri)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
-        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             throw new IllegalStateException("Request failed");
         }
         return response.readEntity(LIST_TYPE);
@@ -57,7 +57,7 @@ public class Main {
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.TEXT_PLAIN)
                 .post(Entity.json(subscription));
-        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             throw new IllegalStateException("Request failed: " + response.readEntity(String.class));
         }
         return response.readEntity(Integer.class);
@@ -83,7 +83,7 @@ public class Main {
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.TEXT_PLAIN)
                 .put(Entity.json(subscription));
-        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             throw new IllegalStateException("Request failed: " + response.readEntity(String.class));
         }
     }
@@ -101,7 +101,7 @@ public class Main {
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.TEXT_PLAIN)
                 .delete();
-        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
             throw new IllegalStateException("Request failed: " + response.readEntity(String.class));
         }
     }
