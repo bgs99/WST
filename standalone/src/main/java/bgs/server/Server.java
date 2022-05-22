@@ -22,7 +22,7 @@ public class Server {
     public static void main(String[] args) {
         HttpServer server = null;
         try {
-            ResourceConfig resourceConfig = new ResourceConfig().packages(SubscriptionResource.class.getPackageName());
+            ResourceConfig resourceConfig = new Config();
             server = GrizzlyHttpServerFactory.createHttpServer(BASE_URI, resourceConfig);
             server.start();
             System.in.read();

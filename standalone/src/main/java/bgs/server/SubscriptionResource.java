@@ -1,6 +1,7 @@
 package bgs.server;
 
 import bgs.shared.*;
+import jakarta.annotation.security.RolesAllowed;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -89,6 +90,7 @@ public class SubscriptionResource {
         return persons;
     }
 
+    @RolesAllowed("ADMIN")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
@@ -104,6 +106,7 @@ public class SubscriptionResource {
         return this.dao.createSubscription(subscription.getName(), subscription.getRate(), subscription.getThroughput(), subscription.getHasTv());
     }
 
+    @RolesAllowed("ADMIN")
     @Path("/{id}")
     @PUT
     @Produces(MediaType.TEXT_PLAIN)
@@ -122,6 +125,7 @@ public class SubscriptionResource {
         }
     }
 
+    @RolesAllowed("ADMIN")
     @Path("/{id}")
     @DELETE
     @Produces(MediaType.TEXT_PLAIN)

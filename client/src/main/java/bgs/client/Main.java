@@ -23,6 +23,11 @@ public class Main {
     private final Client client;
     private final UriBuilder builder;
 
+    private final static String USERNAME = "user";
+    private final static String PASSWORD = "pass";
+
+    private final static Authenticator AUTH = new Authenticator(USERNAME, PASSWORD);
+
     Main(URI uri) {
         this.client = ClientBuilder.newClient();
         this.builder = UriBuilder.fromUri(uri);
@@ -33,7 +38,7 @@ public class Main {
                 .request(MediaType.APPLICATION_JSON)
                 .get();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            throw new IllegalStateException("Request failed");
+            throw new IllegalStateException(String.format("Request failed: %s", response.readEntity(String.class)));
         }
         return response.readEntity(LIST_TYPE);
     }
@@ -53,12 +58,14 @@ public class Main {
 
         final var uri = this.builder.build();
 
-        final var response = this.client.target(uri)
+        final var response = this.client
+                .register(AUTH)
+                .target(uri)
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.TEXT_PLAIN)
                 .post(Entity.json(subscription));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            throw new IllegalStateException("Request failed: " + response.readEntity(String.class));
+            throw new IllegalStateException(String.format("Request failed: %s", response.readEntity(String.class)));
         }
         return response.readEntity(Integer.class);
     }
@@ -79,12 +86,14 @@ public class Main {
 
         final var uri = this.builder.segment("{arg1}").build(id);
 
-        final var response = this.client.target(uri)
+        final var response = this.client
+                .register(AUTH)
+                .target(uri)
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.TEXT_PLAIN)
                 .put(Entity.json(subscription));
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            throw new IllegalStateException("Request failed: " + response.readEntity(String.class));
+            throw new IllegalStateException(String.format("Request failed: %s", response.readEntity(String.class)));
         }
     }
 
@@ -97,12 +106,14 @@ public class Main {
 
         final var uri = this.builder.segment("{arg1}").build(id);
 
-        final var response = this.client.target(uri)
+        final var response = this.client
+                .register(AUTH)
+                .target(uri)
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.TEXT_PLAIN)
                 .delete();
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            throw new IllegalStateException("Request failed: " + response.readEntity(String.class));
+            throw new IllegalStateException(String.format("Request failed: %s", response.readEntity(String.class)));
         }
     }
 
