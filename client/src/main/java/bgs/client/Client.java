@@ -1,38 +1,30 @@
 package bgs.client;
 
-import bgs.client.generated.*;
+import bgs.client.generated.NegativeParameterException;
+import bgs.client.generated.Subscription;
+import bgs.client.generated.SubscriptionNotFoundException;
+import bgs.client.generated.SubscriptionService;
+import bgs.client.generated.SubscriptionWebService;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-import javax.xml.ws.BindingProvider;
 
 public class Client {
 
     private final SubscriptionWebService port;
-
-    private final static String USERNAME = "user";
-    private final static String PASSWORD = "pass";
-
-    private SubscriptionWebService authenticatedPort() {
-        final var prov = (BindingProvider) this.port;
-        prov.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, USERNAME);
-        prov.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, PASSWORD);
-        return (SubscriptionWebService) prov;
-    }
 
     Client(URL url) {
         this.port = new SubscriptionService(url).getSubscriptionWebServicePort();
     }
 
     synchronized int createSubscription(List<String> args)
-            throws IllegalArgumentException, NegativeParameterException, AuthenticationException {
+            throws IllegalArgumentException, NegativeParameterException {
         if (args.size() < 4) {
             throw new IllegalArgumentException("Expected 4 values for name, rate, throughput, and tv");
         }
-
-        return authenticatedPort().createSubscription(
+        return this.port.createSubscription(
                 args.get(0),
                 Double.parseDouble(args.get(1)),
                 Double.parseDouble(args.get(2)),
@@ -40,11 +32,11 @@ public class Client {
     }
 
     synchronized void editSubscription(List<String> args)
-            throws IllegalArgumentException, NegativeParameterException, SubscriptionNotFoundException, AuthenticationException {
+            throws IllegalArgumentException, NegativeParameterException, SubscriptionNotFoundException {
         if (args.size() < 5) {
             throw new IllegalArgumentException("Expected 5 values for id, name, rate, throughput, and tv");
         }
-        authenticatedPort().editSubscription(
+        this.port.editSubscription(
                 Integer.parseInt(args.get(0)),
                 args.get(1),
                 Double.parseDouble(args.get(2)),
@@ -53,11 +45,11 @@ public class Client {
     }
 
     synchronized void removeSubscription(List<String> args)
-            throws IllegalArgumentException, SubscriptionNotFoundException, AuthenticationException {
+            throws IllegalArgumentException, SubscriptionNotFoundException {
         if (args.size() < 1) {
             throw new IllegalArgumentException("Expected id");
         }
-        authenticatedPort().removeSubscription(
+        this.port.removeSubscription(
                 Integer.parseInt(args.get(0)));
     }
 
@@ -123,8 +115,8 @@ public class Client {
         }
     }
 
-    public static void main(String[] args) throws MalformedURLException {
-        final var url = new URL("http://bgs99claptop:8080/wst/SubscriptionService?wsdl");
+    public static void main(String wsdl, String[] args) throws MalformedURLException {
+        final var url = new URL(wsdl);
         final var client = new Client(url);
 
         if (args.length == 0) {
@@ -153,7 +145,7 @@ public class Client {
                     final var id = client.createSubscription(argList);
 
                     System.out.println("Created subscription with id " + id);
-                } catch (NegativeParameterException | IllegalArgumentException | AuthenticationException e) {
+                } catch (NegativeParameterException | IllegalArgumentException e) {
                     System.out.println("Failed to create subscription: " + e);
                 }
                 break;
@@ -162,7 +154,7 @@ public class Client {
                 try {
                     client.editSubscription(argList);
                     System.out.println("Successfully edited subscription");
-                } catch (NegativeParameterException | SubscriptionNotFoundException | IllegalArgumentException | AuthenticationException e) {
+                } catch (NegativeParameterException | SubscriptionNotFoundException | IllegalArgumentException e) {
                     System.out.println("Failed to edit subscription: " + e);
                 }
                 break;
@@ -171,7 +163,7 @@ public class Client {
                 try {
                     client.removeSubscription(argList);
                     System.out.println("Successfully removed subscription");
-                } catch (SubscriptionNotFoundException | IllegalArgumentException | AuthenticationException e) {
+                } catch (SubscriptionNotFoundException | IllegalArgumentException e) {
                     System.out.println("Failed to remove subscription: " + e);
                 }
                 break;

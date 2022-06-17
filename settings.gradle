@@ -2,6 +2,5 @@ rootProject.name = 'WST'
 
 include ':client'
 include ':shared'
-include ':service'
 include ':standalone'
 

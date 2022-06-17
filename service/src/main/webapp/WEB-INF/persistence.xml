@@ -1,6 +1,0 @@
-<persistence>
-    <persistence-unit name="Subscriptions">
-        <jta-data-source>jdbc/bgs-ws</jta-data-source>
-        <class>bgs.service.SubscriptionWebService</class>
-    </persistence-unit>
-</persistence>
